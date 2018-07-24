@@ -1,0 +1,118 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Insert title here</title>
+{% load static from staticfiles %}
+<link type="text/css" rel="stylesheet" href="{% static 'markeysystem/css/style.css' %}">
+<script type="text/javascript" src="{% static 'markeysystem/js/jquery-3.3.1.js' %}"></script>
+<script type="text/javascript">
+    window.onload = function () {
+        let t = {{ sex }};
+        let s = $("#select1").val();
+        if (t== s ) {
+            $("#select1").attr('selected', 'selected');
+        }else {
+            $("#select2").attr('selected', 'selected');
+        }
+        let j = {{ auth }};
+        alert(j);
+        let v = $("#auth1").val();
+        if (j==v ) {
+            $("#auth1").attr('checked', 'checked');
+        }else {
+            $("#auth2").attr('checked', 'checked');
+        }
+    };
+    function checkit() {
+        //判断是否是数字的正则表达式
+        return true;
+    }
+    function update() {
+        let up = confirm("确认修改吗？");
+        if (up) {
+            $("#form1").attr("action",'{% url 'user:user_modefy' %}')
+        }else {
+
+        }
+
+
+    }
+    function updatedel() {
+        let up = confirm("确认删除吗？");
+        if (up) {
+            $("#form1").attr("action",'{% url 'user:user_modefy' %}')
+        }else {
+
+        }
+
+
+    }
+
+</script>
+</head>
+<body>
+<div class="main">
+    <div class="optitle clearfix">
+        <div class="title">用户管理&gt;&gt;</div>
+
+    </div>
+    <form id="form1" name="form1" method="post" action="" onsubmit="return checkit();">
+        <input type="hidden" name="flag" value="doAdd">
+        <div class="content">
+            <table class="box"><font color="red"></font>
+                <tr>
+                    <td class="field">用户编号：</td>
+                    <td><input type="text" name="userId" id="textfield" class="text" value="{{ userId }}"/> <font color="red">*</font></td>
+
+                </tr>
+                <tr>
+                    <td class="field">用户名称：</td>
+                    <td><input type="text" name="username" class="text" id="textfield2" value="{{ username }}"/> <font color="red">*</font>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="field">用户密码：</td>
+
+                    <td><input type="text" name="password" class="text" id="textfield2" value="{{ password }}"/> <font color="red">*</font>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="field">用户性别：</td>
+                    <td><select name="sex" id="select">
+                        <option value="0" id="select1">女</option>
+                        <option value="1" id="select2">男</option>
+                    </select></td>
+                </tr>
+
+                <tr>
+                    <td class="field">用户年龄：</td>
+                    <td><input type="text" name="age" class="text" id="textfield2" value="{{ age }}"/> <font color="red">*</font></td>
+                </tr>
+                <tr>
+                    <td class="field">用户电话：</td>
+                    <td><input type="text" name="mobile" class="text" id="textfield2" value="{{ mobile }}"/> <font color="red">*</font></td>
+
+                </tr>
+                <tr>
+                    <td class="field">用户地址：</td>
+                    <td><input name="address" id="textarea" class="text" value="{{ address }}"></td>
+                </tr>
+                <tr>
+                    <td class="field">用户权限：</td>
+
+                    <td><input type="radio" name="auth" id="auth1" value="0" />普通用户
+                        <input type="radio" name="auth" id="auth2" value="1"  />经理
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="buttons">
+            <input type="submit" name="button" id="button1" value="修改" class="input-button" onclick="update()"/>
+            <input type="submit" name="button" id="button2" value="删除" class="input-button" onclick="updatedel()"/>
+            <input type="button" name="button" id="button" onclick="window.location='{% url 'user:userAdmin' %}';" value="返回"
+                   class="input-button"/>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>
