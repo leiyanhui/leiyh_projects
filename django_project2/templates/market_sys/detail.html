@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>天天生鲜-商品详情</title>
+    {% load static from staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-2.1.0.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            let s =$("#valid").html();
+            {#alert(s)#}
+            if (s==1) {
+                {#alert(456);#}
+                $(".login_info").show();
+                $(".login_btn").hide();
+            }else {
+                 {#alert(123);#}
+                $(".login_info").hide();
+                $(".login_btn").show();
+                $("#count").html(0)
+            }
+            $(".login_info").show();
+            $(".login_btn").hide();
+            let num = $("#num").val();
+            $("#total").html(11.8);
+            let price = $("#price").html();
+            $("#subtract").click(function () {
+                if (num <= 1) {
+                    $("#num").val(1);
+                    let total = price * num;
+                } else {
+                    num -= 1;
+                    $("#num").val(num);
+                    let total = price * num;
+                    $("#total").html(total.toFixed(2));
+                }
+            });
+            $("#plus").click(function () {
+                if (num >= 100) {
+                    $("#num").val(100);
+                } else {
+                    num++;
+                    $("#num").val(num);
+                    let total = price * num;
+                    $("#total").html(total.toFixed(2));
+                }
+            });
+            $("#add_cart").click(function () {
+                {#alert(123);#}
+                $("#form").attr('action',"{% url 'user:cart_adddata' product.id %}")
+            });
+            $("#buy_rightnow").click(
+                function () {
+                    $("#form").attr('action', "{% url 'user:place_order' %}")
+                })
+        });
+
+
+    </script>
+
+</head>
+<body>
+<div class="header_con">
+    <div class="header">
+        <div class="welcome fl">欢迎来到天天生鲜! <span id="valid" style="visibility: hidden">{{ valid }}</span></div>
+        <div class="fr">
+            <div class="login_info fl">
+                欢迎您：<em>{{ username }}</em>
+            </div>
+            <div class="login_btn fl">
+                <a href="{% url 'user:loginpage' %}">登录</a>
+                <span>|</span>
+                <a href="{% url 'user:registpage' %}">注册</a>
+            </div>
+            <div class="user_link fl">
+                <span>|</span>
+                <a href="{% url 'user:user_center_info' %}">用户中心</a>
+                <span>|</span>
+                <a href="{% url 'user:cart' %}">我的购物车</a>
+                <span>|</span>
+                <a href="{% url 'user:user_center_order' %}">我的订单</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search_bar clearfix">
+    <a href="{% url 'user:loginpage' %}" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
+    <div class="search_con fl">
+        <input type="text" class="input_text fl" name="" placeholder="搜索商品">
+        <input type="button" class="input_btn fr" name="" value="搜索">
+    </div>
+    <div class="guest_cart fr">
+        <a href="{% url 'user:cart' %}" class="cart_name fl">我的购物车</a>
+        <div class="goods_count fl" id="show_count">{{ count }}</div>
+    </div>
+</div>
+
+<div class="navbar_con">
+    <div class="navbar clearfix">
+        <div class="subnav_con fl">
+            <h1>全部商品分类</h1>
+            <span></span>
+            <ul class="subnav">
+                <li><a href="#" class="fruit">新鲜水果</a></li>
+                <li><a href="#" class="seafood">海鲜水产</a></li>
+                <li><a href="#" class="meet">猪牛羊肉</a></li>
+                <li><a href="#" class="egg">禽类蛋品</a></li>
+                <li><a href="#" class="vegetables">新鲜蔬菜</a></li>
+                <li><a href="#" class="ice">速冻食品</a></li>
+            </ul>
+        </div>
+        <ul class="navlist fl">
+            <li><a href="{% url 'user:index' %}">首页</a></li>
+            <li class="interval">|</li>
+            <li><a href="">手机生鲜</a></li>
+            <li class="interval">|</li>
+            <li><a href="">抽奖</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#">全部分类</a>
+    <span>></span>
+    <a href="#">新鲜水果</a>
+    <span>></span>
+    <a href="#">商品详情</a>
+</div>
+<form action="" method="get" id="form">
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img src="{{ MEDIA_URL }}{{ picture.picture_icron }}" width="350px" alt="">
+        </div>
+
+        <div class="goods_detail_list fr">
+            <h3>{{ product.product_name }}</h3>
+            <p>{{ product.product_desc }}</p>
+            <div class="prize_bar">
+                <span class="show_pirze">¥<em id="price">{{ product.product_price }}</em></span>
+                <span class="show_unit">单  位：500g</span>
+            </div>
+            <div class="goods_num clearfix">
+                <div class="num_name fl">数 量：{{ product.product_num }}</div>
+                <div class="num_add fl">
+                    <input type="text" name="num_show fl" class="num_show fl" value="1" id="num">
+                    <a href="javascript:" class="add fr" id="plus">+</a>
+                    <a href="javascript:" class="minus fr" id="subtract">-</a>
+                </div>
+            </div>
+            <div class="total">总价：<em id="total"></em></div>
+            <div class="operate_btn">
+                <input type="submit" name="button1" value="立即购买" class="buy_btn" id="buy_rightnow">
+                <input type="submit" name="button2" value="加入购物车" class="add_cart" id="add_cart">
+            </div>
+        </div>
+    </div>
+</form>
+<div class="main_wrap clearfix">
+    <div class="l_wrap fl clearfix">
+        <div class="new_goods">
+            <h3>新品推荐</h3>
+            <ul>
+                {% for r in recommend %}
+                    <li>
+                        {% for s in picture_list %}
+                            {% if s.picture_name == r.product_name %}
+                                <a href="{% url 'user:scan_adddata' r.id %}"><img src="{{ MEDIA_URL }}{{ s.picture_icron }}"
+                                                                            alt=""></a>
+                            {% endif %}
+                        {% endfor %}
+                        <h4><a href="#">{{ r.product_name }}</a></h4>
+                        <div class="prize">￥{{ r.product_price }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="r_wrap fr clearfix">
+        <ul class="detail_tab clearfix">
+            <li class="active">商品介绍</li>
+            <li>评论</li>
+        </ul>
+
+        <div class="tab_content">
+            <dl>
+                <dt>商品详情：</dt>
+                <dd>{{ product.product_desc }}</dd>
+            </dl>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    <div class="foot_link">
+        <a href="#">关于我们</a>
+        <span>|</span>
+        <a href="#">联系我们</a>
+        <span>|</span>
+        <a href="#">招聘人才</a>
+        <span>|</span>
+        <a href="#">友情链接</a>
+    </div>
+    <p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+    <p>电话：010-****888 京ICP备*******8号</p>
+</div>
+<div class="add_jump"></div>
+
+<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+<script type="text/javascript">
+    var $add_x = $('#add_cart').offset().top;
+    var $add_y = $('#add_cart').offset().left;
+
+    var $to_x = $('#show_count').offset().top;
+    var $to_y = $('#show_count').offset().left;
+
+    $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'});
+    $('#add_cart').click(function () {
+        $(".add_jump").stop().animate({
+                'left': $to_y + 7,
+                'top': $to_x + 7
+            },
+            "fast", function () {
+                $(".add_jump").fadeOut('fast', function () {
+                    $('#show_count').html(2);
+                });
+
+            });
+    })
+</script>
+
+</body>
+</html>
