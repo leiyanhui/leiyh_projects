@@ -1,0 +1,304 @@
+shell编程
+shell:用户输入一条命令，shell就执行一条命令
+      用户编写一个shell脚本（包含多条命令），shell一次性的执行
+
+查看当前用户使用的shell版本
+vim /etc/passwd
+
+简单的脚本
+1.vim test.sh
+2.首行
+#！ /bin/sh
+
+3.修改权限 chmod a+x test.sh
+执行 ./test.sh
+
+过程：shell会fork一个子进程并且调用exec执行test.sh
+
+如果执行 source ./test.sh
+         . ./test.sh
+这种情况下不会在子进程中执行脚本，而是在交互式的shell中 
+
+
+基本语法
+
+变量
+一般全部由大写字母组成
+1.环境变量
+环境变量可以从父进程传递给子进程
+env:显示所有环境变量
+
+2.本地变量
+只存在于当前的shell进程
+定义本地变量 VARNAME=value(注意，不能有空格)
+set命令可以看到所有的本地、环境变量和函数 set | grep 'VARNAME'
+export VARNAME导出本地变量到环境变量
+
+删除本地或环境变量：unset VARNAME
+
+取变量的值 $VARNAME
+
+实际上shell所有变量的类型都是字符串，在shell中变量可以不用声明就可以使用，默认空字符串
+
+通用符
+*匹配0个或多个任意字符
+?匹配一个字符
+[]匹配括号内任意字符
+
+``和$()
+用``或者$()括起来的内容是一条命令，shell会先执行该命令，然后将结果替换到当前命令中去
+DATE=`date`
+DATE=$(date)
+
+算术运算$(())
+$(())中的内容会被装换为整数，只能四则运算，整数运算
+
+$[base#n]:base进制， n以base进制换算
+
+
+转义字符\
+MONEY=\$100
+\还可以作为延续行符号
+
+
+单引号和双引号
+单引号是字符串的界定符，描述引号内所有字符的字面值
+andy@ubuntu:~$ echo '$DATE'
+$DATE
+andy@ubuntu:~$ echo 'abc\n'
+abc\n
+andy@ubuntu:~$ 
+andy@ubuntu:~$ echo 'abc\
+> cdrf'
+abc\
+cdrf
+
+双引号
+双引号表示的字符串支持变量的扩展，和转移字符等等
+andy@ubuntu:~$ echo "$DATE"
+2018年 07月 22日 星期日 20:41:10 PDT
+andy@ubuntu:~$ echo "abc\
+> cd"
+abccd
+andy@ubuntu:~$ echo "abc\$"
+abc$
+
+test 或者 [  ]
+test $VAR -gt 1    [ $VAR -gt 1 ]
+使用$?获取执行的结果
+
+[ -d DIR ] 如果dir路径存在而且是一个目录则为真
+[ -f FILE ] 如果FILE存在而且是一个文件则为真
+[ -z STRING ] 如果字符串长度为0则为真
+[ -n STRING ] 如果字符串长度不为0则为真
+[ STR1 = STR2 ] 判断字符串是否相同
+[ STR1 ！= STR2 ] 判断字符串是否不同
+[ ARG1 OP ARG2 ] arg必须是整数或者值为整数的变量，op可以是-eq -ne -lt -gt -le -ge
+
+[ ! EXPR ]逻辑反
+[ EXPR1 -a EXPR2]逻辑与
+[ EXPR1 -o EXPR2]逻辑或
+
+[ $VAR2 = 'abc' -a $VAR2 = 'bcd' ]如果VAR2没有定义，那么VAR2默认空字符串，报错，良好的习惯是加双引号[ "$VAR2" = 'abc' -a "$VAR2" = 'bcd' ]
+
+条件语句
+if/then/elif/else/fi
+
+if [ expr ]; then
+    command
+fi
+例：
+#! /bin/sh
+
+if [ -f /bin/bash ]
+then echo '/bin/bash is a file'
+else echo '/bin/bash is NOT file'
+fi
+
+
+if : ; then echo 'always true' ;fi
+：是空命令，exit status（$?）始终为真
+
+&& ||
+shell支持&& 和||语法，并且就有短路功能
+test "$(whoami)" == "root" && (echo no privilege)
+短路与：第一个条件为假，那么后续不再执行
+短路或：第一个条件为真，那么后续不再执行
+
+
+分支语句case/esac
+
+case "$VAR" in
+  模式1)
+    ....;;
+  模式2)
+    ...;;
+  *)
+    ...;;
+esac
+
+例：
+  1 #! /bin/sh
+  2 
+  3 echo "是否退出？"
+  4 read YESORNO
+  5 case "$YESORNO" in
+  6     yes|y)
+  7         echo "确定";;
+  8     [nN])
+  9         echo "取消"
+ 10         exit 1;;
+ 11 esac
+ 12 exit 0
+
+
+循环 for  do  done
+for TMP in 值1 值2 值3; do
+  ...
+done
+
+for TMP in `命令`; do
+  ...
+done
+
+while do done
+while [ expr ]; do
+  ...
+done
+
+例：
+  3 COUNT=1
+  4 while [ "$COUNT" -lt 10 ]; do
+  5     echo "$COUNT"
+  6     COUNT=$(($COUNT+1))
+  7 done
+  8 
+  9 
+ 10 while [ "$(whoami)" = "andy" ] && [ "$COUNT" -lt     20 ]; do
+ 11     echo "$COUNT"
+ 12     COUNT=$(($COUNT+1))
+ 13 done
+
+break、continue
+例子：
+  3 read PWD
+  4 COUNT=0
+  5 while [ "$PWD" != "12345" ]; do
+  6     COUNT=$(($COUNT+1))
+  7     if [ "$COUNT" -gt 4 ]; then
+  8         echo "超过五次，滚"
+  9         break
+ 10     fi
+ 11     echo "重新输入"
+ 12     read PWD
+ 13 done
+
+brean n可以跳出n层循环
+
+脚本命令参数
+
+  1 #! /bin/sh
+  2 
+  3 echo "脚本名字$0"
+  4 echo "第一个参数$1"
+  5 echo "第二个参数$2"
+  6 echo "第三个参数$3"
+  7 echo "参数列表$@"
+
+可以使用shift作左移 shift n
+左移一位，表示原来的第一个参数舍弃，第二个参数变成第一个参数，以此类推
+
+tee命令
+tee将结果输出到标准输出，另外再输出到文件
+ls | tee a.txt
+tee -a a.txt是指将内容追加到文件中
+
+重定向追加 >>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
